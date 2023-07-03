@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <title>Document</title>
+    <script>
+        $(function () {
+            const userInfo = localStorage.getItem('userInfo');
+            userJsonInfo = JSON.parse(userInfo) || "public"
+            const film_title = localStorage.getItem('film_name');
+            let output = `${film_title}`;
+            $('#title').html(output);
+
+            $('#nameInput').html(`<label for="exampleFormControlInput1" class="form-label">Name: </label>
+                                        <input type="text" class="form-control" id="name" placeholder="e.g. John" value=" ${userJsonInfo[0].first_name} ${userJsonInfo[0].last_name}">`)
+        })
+        $(document).ready(function () {
+            $('#back').on('click', function (e) {
+                window.location.assign('http://localhost:3001/Details.html')
+            });
+
+            $('#add').click(function () {
+                const title = localStorage.getItem('film_name');
+                const nameInput = document.getElementById('nameInput');
+                const name = $('#name').val();
+                const comment = $('#comment').val();
+                const score = $('#score-select >option:selected').val();
+                if (comment != "" && score != "Select a score") {
+                    const dataObj = {
+                        name: name,
+                        comment: comment,
+                        score: parseInt(score)
+                    }
+                    const data = JSON.stringify(dataObj);
+
+                    // send HTTP request
+                    $.ajax({
+                        url: `http://localhost:8081/film/comment/${title}`,
+                        type: 'POST',
+                        data: data,
+                        contentType: "application/json;charset=utf-8",
+                        dataType: 'json',
+                        success: function (data, textStatus, xhr) {
+                            if (data != null) {
+                                alert('success')
+                                window.location.assign('http://localhost:3001/Details.html');
+                            }
+                            else {
+
+                            }
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            alert('error')
+                        }
+                    })
+                }
+                else{
+                    $('#msg').html('<p style="color: red">Fill in comment and score.</p style="color: red">')
+                }
+            })
+        })
+
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">Add Comment</span>
+            </a>
+
+            <div id="nav"></div>
+
+        </header>
+        <div class="py-5 row card">
+            <div class="d-flex justify-content-center">
+                <h1 id="title"></h1>
+            </div>
+            <div class="mb-3" id="nameInput">
+
+            </div>
+            <div class="mb-3 ">
+                <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="score-select">
+                    <option selected>Select a score</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="2">4</option>
+                    <option value="3">5</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">Comment: </label>
+                <textarea class="form-control" id="comment" rows="3"></textarea>
+            </div>
+            <div id="msg"></div>
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-primary col-2" id="back">back</button>
+                <button type="button" class="btn btn-primary col-2" id="add">Add Comment</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <title>Home page</title>
+    <script>
+        $(document).ready(function () {
+            const userInfo = localStorage.getItem('userInfo');
+            userJsonInfo = JSON.parse(userInfo) || "public"
+            if (userJsonInfo[0].role == "user") {
+                $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./Profile.html" class="nav-link">Profile</a></li>
+            </ul>`)
+            }
+            else if(userJsonInfo == "public"){
+                $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./CustomerLogin.html" class="nav-link">Login</a></li>
+            </ul>`)
+            }
+            else if (userJsonInfo[0].role == "admin" || userJsonInfo[0].role == "manager") {
+                $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="AddActor.html" class="nav-link" aria-current="page">Add Actor</a></li>
+                <li class="nav-item"><a href="./AddCustomer.html" class="nav-link" aria-current="page">Add Customer</a>
+                </li>
+                <li class="nav-item"><a href="./Profile.html" class="nav-link">Profile</a></li>
+            </ul>`)
+            }
+        
+            
+        })
+        $(document).ready(function () {
+            $('#search').click(function () {
+                const title = $('#title').val() || false;
+                const rental = $('#rental').val() || 5;
+                const category = $('#cat-select >option:selected').val() || false;
+                $.ajax({
+                    url: `http://localhost:8081/films/${title}&${rental}&${category}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data, textStatus, xhr) {
+                        if (data != null) {
+                            for (index in data) {
+                                let divOutput = '';
+                                for (index in data) {
+                                    divOutput += `<li class="list-group-item d-flex justify-content-between align-items-start mt-3 films" id="${data[index].title}">
+                                                <div class="ms-2 me-auto">
+                                                    <div class="fw-bold">Film Title: ${data[index].title}</div>
+                                                    Release Year: ${data[index].release_year}
+                                                </div>
+                                                <span class="badge bg-primary rounded-pill">${data[index].rating}</span>
+                                            </li>`
+
+                                }
+                                $('#result').html(divOutput);
+                            }
+                        }
+                        else {
+                            console.log('Data is null')
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log('Error in operation');
+                        alert('error')
+                    }
+                })
+            })
+
+            $(document).on("click", ".films", function () {
+                let film_name = $(this).attr("id");
+                localStorage.setItem("film_name", film_name);
+                window.location.assign('http://localhost:3001/Details.html')
+            })
+        })
+        $(function () {
+            $.ajax({
+                url: `http://localhost:8081/film/category`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    if (data != null) {
+                        let catSelect = document.getElementById('cat-select');
+                        catSelect.options[0] = new Option('Select a category', false);
+                        for (index in data) {
+                            catSelect.options[catSelect.options.length] = new Option(data[index].name, data[index].name);
+                        }
+                    }
+                    else {
+                        console.log('Data is null')
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in operation');
+                }
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">Home</span>
+            </a>
+            <div id="nav"></div>
+        </header>
+        <div class="px-5 row">
+            <form class="d-flex col-4" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search By Title" aria-label="Search"
+                    id="title">
+            </form>
+            <form class="d-flex col-4" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search By Rental Rate" aria-label="Search"
+                    id="rental">
+                <button class="btn btn-outline-success" type="button" id="search">Search</button>
+            </form>
+        </div>
+
+        <select class="form-select mt-5" aria-label="Default select example" id="cat-select" name="category">
+
+        </select>
+
+
+        <ol class="list-group list-group-numbered" id="film-list">
+            <div id="result"></div>
+        </ol>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

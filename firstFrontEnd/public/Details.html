@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script>
+        $(document).ready(function () {
+            const userInfo = localStorage.getItem('userInfo');
+            userJsonInfo = JSON.parse(userInfo) || "public"
+            if (userJsonInfo[0].role == "user") {
+                $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./Profile.html" class="nav-link">Profile</a></li>
+            </ul>`)
+            }
+            else if(userJsonInfo == "public"){
+                $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./CustomerLogin.html" class="nav-link">Login</a></li>
+            </ul>`)
+            }
+            else if (userJsonInfo[0].role == "admin" || userJsonInfo[0].role == "manager") {
+                $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="AddActor.html" class="nav-link" aria-current="page">Add Actor</a></li>
+                <li class="nav-item"><a href="./AddCustomer.html" class="nav-link" aria-current="page">Add Customer</a>
+                </li>
+                <li class="nav-item"><a href="./Profile.html" class="nav-link">Profile</a></li>
+            </ul>`)
+            }
+        })
+
+        $(document).ready(function () {
+            $('#logout').click(function () {
+                window.localStorage.clear();
+                window.location.assign('http://localhost:3001')
+            })
+            $('#addComment').click(function () {
+                const token = localStorage.getItem('token');
+                if (token == undefined) {
+                    alert('Need login to give review')
+                    window.location.assign('http://localhost:3001/CustomerLogin.html')
+                }
+                else {
+                    window.location.assign('http://localhost:3001/AddComment.html')
+                }
+            })
+        })
+        $(function () {
+            const film_name = localStorage.getItem('film_name');
+            $.ajax({
+                url: `http://localhost:8081/film/details/${film_name}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    if (data != null) {
+                        let output = '';
+                        output += `<div class="card col-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title fw-bolder">${data[0].title}</h5>
+                                            <p class="card-text fw-bold">
+                                                ${data[0].description}
+                                            </p>
+                                        </div>
+                                        <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><span class="fw-bolder">Category: </span>${data[0].name}</li>
+                                        <li class="list-group-item"><span class="fw-bolder">Actors: </span>`
+
+                        for (let i = 0; i < data.length; i++) {
+                            output += `${data[i].first_name} ${data[i].last_name}`
+                            if (i < data.length - 1) {
+                                output += ", "
+                            }
+                            else {
+                                output += "</li>"
+                            }
+                        }
+                        output += ` <li class="list-group-item"><span class="fw-bolder">Release Year: ${data[0].release_year}</span></li>
+                                    <li class="list-group-item"><span class="fw-bolder">Rating: ${data[0].rating}</span></li>
+                                </div>`
+                        $('#details').html(output);
+                    }
+                    else {
+                        console.log('Data is null')
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in operation');
+                }
+            })
+        });
+
+        $(function () {
+            const film_name = localStorage.getItem('film_name');
+            console.log(film_name)
+            $.ajax({
+                url: `http://localhost:8081/film/comment/${film_name}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    if (data != null) {
+                        let output = '';
+                        for (let i = 0; i < data.length; i++) {
+                            output += `<div class="d-flex text-muted pt-3 flex-wrap">
+                                            <p class="pb-3 mb-0 small lh-sm border-bottom">
+                                            <div class="col-12">
+                                                <strong class="d-block text-gray-dark">${data[i].user}</strong>`
+                            for (let j = 0; j < data[i].score; j++) {
+                                if (j < data[i].score) {
+                                    output += `<span class="fa fa-star" style="color: orange;"></span>`;
+                                }
+                            }
+                            output += `</div>
+                                        </p>
+                                        <div class="col-12">
+                                            ${data[i].comment} 
+                                        </div>
+                                        </div>
+                                        </div>`;
+
+                        }
+                        $('#comment').html(output);
+                    }
+                    else {
+                        let output = '';
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in operation');
+                }
+            })
+        });
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">Details</span>
+            </a>
+            <div id="nav"></div>
+
+        </header>
+
+        <div class="d-flex justify-content-center mt-5">
+            <div id="details"></div>
+        </div>
+
+        <div class="my-3 p-3 bg-body rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0">Comments</h6>
+            <div id="comment"></div>
+            <div class="d-flex justify-content-center mt-3" id="addComment">
+                <button type="button" class="btn btn-primary">Add Comment</button>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

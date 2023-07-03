@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Customer</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script>
+        $(document).ready(function () {
+            $("#add").click(function () {
+                // retrieve values from the textboxes
+                const first_name = $('#firstname').val();
+                const last_name = $('#lastname').val();
+                const store_id = $('#store-select > option:selected').val();
+                const email = $('#email').val();
+                const address1 = $('#address1').val();
+                const address2 = $('#address2').val();
+                const district = $('#district').val();
+                const city = $('#city-select > option:selected').val();
+                const postalCode = $('#postalCode').val();
+                const phone = $('#phone').val();
+                const token = localStorage.getItem('token');
+                // built up the JSON object to send request
+                const dataObj = {
+                    first_name: first_name,
+                    last_name: last_name,
+                    store_id: store_id,
+                    email: email,
+                    address_line1: address1,
+                    address_line2: address2,
+                    district: district,
+                    city: city,
+                    postal_code: postalCode,
+                    phone: phone
+                }
+                const data = JSON.stringify(dataObj);
+
+                // send HTTP request 
+                $.ajax({
+                    headers: { 'authorization': 'Bearer ' + token },
+                    url: 'http://localhost:8081/customers',
+                    type: 'POST',
+                    data: data,
+                    contentType: "application/json;charset=utf-8",
+                    dataType: 'json',
+                    success: function (data, textStatus, xhr) {
+                        if (data != null) {
+                            alert('success')
+                            $('#msg').html("<p style='color: green'>Customer added successfully</p>.")
+                        }
+                        else {
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log('Error in Operation');
+                    }
+                })
+                return false;
+            })
+        })
+
+        $(function () {
+            const token = localStorage.getItem('token');
+            let output = '';
+            if (token != undefined) {
+                output += `<ul class="nav nav-pills">
+                                <li class="nav-item"><a href="index.html" class="nav-link " aria-current="page">Search</a></li>
+                                <li class="nav-item"><a href="./AddActor.html" class="nav-link" aria-current="page">Add Actor</a></li>
+                                <li class="nav-item"><a href="./AddCustomer.html" class="nav-link active" aria-current="page">Add Customer</a></li>
+                                <li class="nav-item"><a href="Profile.html" class="nav-link">Profile</a></li>
+            </ul>`
+            }
+            else {
+                output = `<ul class="nav nav-pills">
+                <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item" id="login"><a href="./Login.html" class="nav-link">Login</a></li>
+            </ul>`
+            }
+            $('#nav').html(output);
+        })
+
+        $(function () {
+            $.ajax({
+                url: `http://localhost:8081/store/address`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    if (data != null) {
+                        let storeSelect = document.getElementById('store-select')
+                        storeSelect.options[0] = new Option('Select store', 'Select store');
+                        for (index in data) {
+                            storeSelect.options[storeSelect.options.length] = new Option(`${data[index].address}, ${data[index].district}, ${data[index].city}, ${data[index].country}`, parseInt(index) + 1);
+                        }
+                    }
+                    else {
+                        console.log('Data is null')
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in operation');
+                }
+            })
+        })
+
+        $(function () {
+            $.ajax({
+                url: `http://localhost:8081/city`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data, textStatus, xhr) {
+                    if (data != null) {
+                        let citySelect = document.getElementById('city-select');
+                        citySelect.options[0] = new Option('Select city', 'Select city');
+                        for (index in data) {
+                            citySelect.options[citySelect.options.length] = new Option(`${data[index].city}`, `${data[index].city}`);
+                        }
+                    }
+                    else {
+                        console.log('Data is null')
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in operation');
+                }
+            })
+        })
+
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">Add Customer</span>
+            </a>
+
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./AddActor.html" class="nav-link " aria-current="page">Add Actor</a></li>
+                <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Add Customer</a>
+                </li>
+                <li class="nav-item" ><a href="Profile.html" class="nav-link">Profile</a></li>
+            </ul>
+
+
+        </header>
+    </div>
+
+    <main class="text-center container">
+
+        <form class="row g-3 px-5">
+            <h1 class="h3 mb-3 fw-normal mb-5">Fill in Customer Details</h1>
+            <div class="row">
+                <div class="col-lg-4">
+                    <input type="text" class="form-control" placeholder="First name" aria-label="First name"
+                        id="firstname">
+                </div>
+                <div class="col-lg-4">
+                    <input type="text" class="form-control" placeholder="Last name" aria-label="Last name"
+                        id="lastname">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <input type="email" class="form-control" id="email" placeholder="Email">
+            </div>
+            <div class="col-sm-4">
+                <input type="tel" class="form-control" id="phone" placeholder="Phone No.">
+            </div>
+            <div class="row g-2">
+                <div class="col-8"><input type="text" class="form-control" id="address1" placeholder="Address Line 1">
+                </div>
+            </div>
+            <div class="row g-2">
+                <div class="col-8">
+                    <input type="text" class="form-control" id="address2" placeholder="Address Line 2">
+                </div>
+            </div>
+            <div class="row g-2">
+                <div class="col-8">
+                    <select class="form-select" aria-label="Default select example" id="store-select"
+                        name="store_address">
+                    
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="district" placeholder="District">
+            </div>
+            <div class="col-md-3">
+                <div>
+                    <select class="form-select" aria-label="Default select example" id="city-select"
+                        name="city_name">
+                    
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <input type="number" class="form-control" id="postalCode" placeholder="Postal Code">
+            </div>
+            <div id="msg"></div>
+            <div class="col-12 justify-content-center d-flex mt-3">
+                <button type="button" class="btn btn-primary col-lg-4" id="add">Add Customer</button>
+            </div>
+        </form>
+    </main>
+</body>
+
+</html>

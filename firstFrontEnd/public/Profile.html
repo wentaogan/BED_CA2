@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <title>Profile Page</title>
+  <script>
+    $(document).ready(function () {
+      const name = document.getElementById('name');
+      const userInfo = localStorage.getItem('userInfo');
+      userJsonInfo = JSON.parse(userInfo) || "public";
+      if (userJsonInfo[0].role == "user") {
+        $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link " aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./Profile.html" class="nav-link active">Profile</a></li>
+            </ul>`)
+      }
+      else if (userJsonInfo == "public") {
+        $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link active" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="./CustomerLogin.html" class="nav-link">Login</a></li>
+            </ul>`)
+      }
+      else if (userJsonInfo[0].role == "admin" || userJsonInfo[0].role == "manager") {
+        $('#nav').html(`<ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link " aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="AddActor.html" class="nav-link" aria-current="page">Add Actor</a></li>
+                <li class="nav-item"><a href="./AddCustomer.html" class="nav-link" aria-current="page">Add Customer</a>
+                </li>
+                <li class="nav-item"><a href="#" class="nav-link active">Profile</a></li>
+            </ul>`)
+      }
+      $('#name').html(`${userJsonInfo[0].first_name} ${userJsonInfo[0].last_name}`)
+      $('#email').html(`${userJsonInfo[0].email}`)
+      $('#address').html(`${userJsonInfo[0].address}, ${userJsonInfo[0].district}, ${userJsonInfo[0].city}, ${userJsonInfo[0].country}`)
+      $('#role').html(`${userJsonInfo[0].role}`);
+      $('#phone').html(`${userJsonInfo[0].phone}`)
+
+      $('#logout').click(function () {
+        window.localStorage.clear();
+        window.location.assign('http://localhost:3001')
+      })
+      $('#reset').click(function() {
+        window.location.assign('http://localhost:3001/ResetPassword.html')
+      })
+    })
+
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+      <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+        <span class="fs-4">Profile</span>
+      </a>
+
+      <div id="nav"></div>
+
+
+    </header>
+    <div class="row">
+      <div class="col-md-9">
+        <h1 class="mb-3" id="name"></h1>
+        <hr />
+        <ul class="list-group">
+          <li class="list-group-item">
+            <strong>Email:</strong> <span id="email"> </span >
+          </li>
+          <li class="list-group-item">
+            <strong>Address:</strong> <span id="address"> </span >
+          </li>
+          <li class="list-group-item">
+            <strong>Role:</strong> <span id="role"> </span >
+          </li>
+          <li class="list-group-item">
+            <strong>Phone No.:</strong> <span id="phone"> </span >
+          </li>
+
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between mt-5">
+      <button type="button" class="btn btn-primary col-2" id="reset">Reset Password</button>
+      <button type="button" class="btn btn-primary col-2" id="logout">Logout</button>
+    </div>
+  </div>
+</body>
+
+</html>

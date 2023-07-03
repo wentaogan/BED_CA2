@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.108.0">
+    <title>Login page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script>
+        $(document).ready(function () {
+            $("#Login").click(function () {
+                // retrieve values from the textboxes
+                const email = $('#email').val();
+                const password = $('#pwd').val();
+
+                // built up the JSON object to send request
+                const dataObj = {
+                    email: email,
+                    password: password
+                }
+                if(dataObj.email == "" || dataObj.password == ""){
+                    return alert('fill in email and password to login')
+                }
+                const data = JSON.stringify(dataObj);
+                // send HTTP request 
+                $.ajax({
+                    url: 'http://localhost:8081/staff/login',
+                    type: 'POST',
+                    data: data,
+                    contentType: "application/json;charset=utf-8",
+                    dataType: 'json',
+                    success: function (data, textStatus, xhr) {
+                        alert('success');
+                        if (data != null) {
+                            // store token and userinfo in localStorage
+                            localStorage.setItem('token', data.token);
+                            localStorage.setItem('userInfo', data.UserData);
+                            // redirect to profile.html
+                            window.location.assign('http://localhost:3001')
+                        }
+                        else {
+                            console.log('Error');
+                        }
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert('wrong')
+                    }
+                })
+                return false;
+            })
+        })
+    </script>
+</head>
+
+<body class="text-center">
+
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+            <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                <span class="fs-4">Staff Login</span>
+            </a>
+
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a href="index.html" class="nav-link" aria-current="page">Search</a></li>
+                <li class="nav-item"><a href="#" class="nav-link active">Login</a></li>
+            </ul>
+
+        </header>
+        <main class="form-signin m-auto col-lg-2 mt-5">
+
+            <form>
+                <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+                <div class="form-floating">
+                    <input type="email" class="form-control" id="email" placeholder="name@example.com">
+                    <label for="floatingInput">Email address</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="pwd" placeholder="Password">
+                    <label for="floatingPassword">Password</label>
+                </div>
+
+                <div class="checkbox mb-3">
+                    <label>
+                        <input type="checkbox" value="remember-me"> Remember me
+                    </label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary" type="submit" id="Login">Sign in</button>
+            </form>
+        </main>
+    </div>
+
+
+</body>
+
+</html>
